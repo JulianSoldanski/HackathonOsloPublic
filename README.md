@@ -2,6 +2,17 @@
 
 A full-stack web application for visualizing available hydropower capacity and grid headroom in Norway to assess potential sites for new data centers.
 
+
+
+
+
+
+
+https://github.com/user-attachments/assets/5ead2946-19e6-4793-b362-8430c3b90ca1
+
+https://github.com/user-attachments/assets/210ec7e0-6363-4618-a905-6c69489cf89f
+
+
 ## Features
 
 - **Interactive Map**: Visualize hydropower plants across Norway with MapboxGL
