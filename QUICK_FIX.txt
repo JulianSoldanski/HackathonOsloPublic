@@ -1,0 +1,52 @@
+╔════════════════════════════════════════════════════════════════════╗
+║                    FIX TIMELINE SLIDER - QUICK GUIDE               ║
+╚════════════════════════════════════════════════════════════════════╝
+
+PROBLEM: Under-construction plants visible all the time?
+         Timeline slider doesn't filter plants?
+
+SOLUTION: Update the deadlines in your database
+
+┌────────────────────────────────────────────────────────────────────┐
+│ EASIEST WAY: Run this one command                                  │
+└────────────────────────────────────────────────────────────────────┘
+
+    cd Hackathon2/backend && python update_deadlines.py
+
+That's it! This will:
+  ✓ Update all past deadlines to future dates
+  ✓ Show you what was changed
+  ✓ Fix the timeline slider immediately
+
+┌────────────────────────────────────────────────────────────────────┐
+│ ALTERNATIVE: Use the API endpoint                                  │
+└────────────────────────────────────────────────────────────────────┘
+
+1. Make sure backend is running:
+   cd Hackathon2/backend && uvicorn app.main:app --reload
+
+2. Call the endpoint:
+   curl -X POST http://localhost:8000/api/normalize-deadlines
+
+   OR visit: http://localhost:8000/docs
+   Find "POST /api/normalize-deadlines" and click Execute
+
+┌────────────────────────────────────────────────────────────────────┐
+│ TEST IT WORKS                                                       │
+└────────────────────────────────────────────────────────────────────┘
+
+After updating:
+1. Refresh your frontend (Ctrl+R or Cmd+R)
+2. Move the timeline slider:
+   - 6 months  = Only near-term plants visible
+   - 2 years   = More plants visible
+   - 10 years  = All plants visible
+
+┌────────────────────────────────────────────────────────────────────┐
+│ FULL DOCUMENTATION                                                  │
+└────────────────────────────────────────────────────────────────────┘
+
+See FIX_TIMELINE_DEADLINES.md for detailed instructions and troubleshooting
+
+╚════════════════════════════════════════════════════════════════════╝
+

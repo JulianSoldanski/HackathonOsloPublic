@@ -1,0 +1,129 @@
+#!/bin/sh
+
+# Quick start script for Norway Hydropower Visualizer
+# This script helps set up and run the application
+
+set -e
+
+echo "🌊 Norway Hydropower Visualizer - Quick Start"
+echo "=============================================="
+echo ""
+
+# Check if Docker is installed
+if ! command -v docker >/dev/null 2>&1; then
+    echo "❌ Docker is not installed. Please install Docker Desktop first:"
+    echo "   https://www.docker.com/products/docker-desktop"
+    exit 1
+fi
+
+# Check if Docker Compose (v1 or v2) is available
+if command -v docker-compose >/dev/null 2>&1; then
+    COMPOSE_CMD="docker-compose"
+elif docker compose version >/dev/null 2>&1; then
+    COMPOSE_CMD="docker compose"
+else
+    echo "❌ Docker Compose is not installed. Please install it first:"
+    echo "   https://docs.docker.com/compose/install/"
+    exit 1
+fi
+
+echo "✅ Docker found"
+
+# Check for Mapbox token
+if [ ! -f "frontend/.env" ]; then
+    echo ""
+    echo "⚠️  Frontend .env file not found!"
+    echo ""
+    echo "You need a Mapbox access token to run the map."
+    echo "1. Sign up for free at: https://mapbox.com"
+    echo "2. Get your token from: https://account.mapbox.com/access-tokens/"
+    echo ""
+    printf "Enter your Mapbox token (or press Enter to skip): "
+    read MAPBOX_TOKEN
+    
+    if [ -n "$MAPBOX_TOKEN" ]; then
+        echo "VITE_API_BASE_URL=http://localhost:8000/api" > frontend/.env
+        echo "VITE_MAPBOX_TOKEN=$MAPBOX_TOKEN" >> frontend/.env
+        echo "✅ Created frontend/.env with your token"
+    else
+        echo "VITE_API_BASE_URL=http://localhost:8000/api" > frontend/.env
+        echo "VITE_MAPBOX_TOKEN=pk.your_token_here" >> frontend/.env
+        echo "⚠️  Created frontend/.env with placeholder token"
+        echo "   You'll need to update it with a real token before the map will work!"
+    fi
+else
+    echo "✅ Frontend .env file found"
+fi
+
+# Create backend .env if needed
+if [ ! -f "backend/.env" ]; then
+    echo "DATABASE_URL=sqlite:///./data/hydropower.db" > backend/.env
+    echo "CACHE_EXPIRY_DAYS=7" >> backend/.env
+    echo "LOG_LEVEL=INFO" >> backend/.env
+    echo "# Optional — AI plant analysis (/api/analyze-plant)" >> backend/.env
+    echo "# GOOGLE_SEARCH_API_KEY=" >> backend/.env
+    echo "# GEMINI_API_KEY=" >> backend/.env
+    echo "# GOOGLE_SEARCH_ENGINE_ID=" >> backend/.env
+    echo "✅ Created backend/.env"
+else
+    echo "✅ Backend .env file found"
+fi
+
+echo ""
+echo "🚀 Starting application with Docker Compose..."
+echo ""
+
+# Start the application
+$COMPOSE_CMD up --build -d
+
+echo ""
+echo "⏳ Waiting for services to be ready..."
+sleep 5
+
+# Check if services are running
+if $COMPOSE_CMD ps | grep -q "Up"; then
+    echo ""
+    echo "✅ Application is running!"
+    echo ""
+    echo "📍 Access the application:"
+    echo "   Frontend:  http://localhost:5173"
+    echo "   Backend:   http://localhost:8000"
+    echo "   API Docs:  http://localhost:8000/docs"
+    echo ""
+    echo "📝 Useful commands:"
+    echo "   View logs:        $COMPOSE_CMD logs -f"
+    echo "   Stop app:         $COMPOSE_CMD down"
+    echo "   Restart:          $COMPOSE_CMD restart"
+    echo "   Clean rebuild:    $COMPOSE_CMD down -v && $COMPOSE_CMD up --build"
+    echo ""
+    echo "📚 Documentation:"
+    echo "   Setup guide:      SETUP.md"
+    echo "   API examples:     API_EXAMPLES.md"
+    echo "   Architecture:     ARCHITECTURE.md"
+    echo ""
+    echo "⚠️  Note: The first startup may take 1-2 minutes to fetch hydropower data from NVE."
+    echo "   Check progress: $COMPOSE_CMD logs -f backend"
+    echo ""
+    
+    # Try to open browser (works on macOS and most Linux)
+    if command -v open >/dev/null 2>&1; then
+        printf "Open browser? (y/n) "
+        read -n 1 REPLY
+        echo
+        case "$REPLY" in
+            [Yy]* ) open http://localhost:5173 ;;
+        esac
+    elif command -v xdg-open >/dev/null 2>&1; then
+        printf "Open browser? (y/n) "
+        read -n 1 REPLY
+        echo
+        case "$REPLY" in
+            [Yy]* ) xdg-open http://localhost:5173 ;;
+        esac
+    fi
+else
+    echo ""
+    echo "❌ Services failed to start. Check logs:"
+    echo "   $COMPOSE_CMD logs"
+    exit 1
+fi
